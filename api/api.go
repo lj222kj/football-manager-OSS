@@ -6,11 +6,14 @@ import (
 	"log/slog"
 	"net/http"
 	"time"
+
+	"github.com/lj222kj/xpkg/config"
 )
 
 type Api struct {
 	playerSvc PlayerService
-	le        *slog.Logger
+	cfg       *config.Config
+	lgr       *slog.Logger
 	srv       *http.Server
 	mux       *http.ServeMux
 }
@@ -31,12 +34,13 @@ func (a *Api) GetMux() *http.ServeMux {
 	return a.mux
 }
 
-func NewRestApi(le *slog.Logger, playerSvc PlayerService) *Api {
+func NewRestApi(cfg *config.Config, lgr *slog.Logger, playerSvc PlayerService) *Api {
 	mux := http.NewServeMux()
 
 	api := &Api{
+		cfg:       cfg,
 		playerSvc: playerSvc,
-		le:        le,
+		lgr:       lgr,
 		mux:       mux,
 		srv: &http.Server{
 			Addr:         "127.0.0.1:8080",
@@ -47,7 +51,7 @@ func NewRestApi(le *slog.Logger, playerSvc PlayerService) *Api {
 		},
 	}
 
-	mux.Handle("GET /players/", api.middleware(api.GetPlayers()))
+	mux.Handle("GET /players", api.middleware(api.GetPlayers()))
 	return api
 }
 

@@ -11,12 +11,17 @@ import (
 
 	"github.com/lj222kj/api"
 	"github.com/lj222kj/services/player"
+	"github.com/lj222kj/xpkg/config"
 	"github.com/lj222kj/xpkg/logger"
 )
 
 func New() error {
-	lgr := logger.New()
+	cfg, err := config.NewConfig()
+	if err != nil {
+		return err
+	}
 
+	lgr := logger.New()
 	lgr.Info("Application starting",
 		slog.String("app name", "Football manager OOS"))
 
@@ -24,7 +29,7 @@ func New() error {
 	defer stop()
 
 	playerSvc := player.New()
-	api := api.NewRestApi(lgr, playerSvc)
+	api := api.NewRestApi(cfg, lgr, playerSvc)
 
 	go func() {
 		err := api.ListenAndServe()
